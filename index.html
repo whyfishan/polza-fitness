@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Тренировка без лишнего</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+:root{
+  --a:#6A4CE0; --al:#EFECFD; --ad:#45309E; --a2:#C9BFF5;
+  --bg:#FFFFFF; --card:#F6F6F8; --line:#ECECF0; --text:#17181C; --sub:#8B8D96; --mid:#3A3B42;
+  --warn-bg:#FFF6E5; --warn:#8A5A00;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;line-height:1.45}
+#app{max-width:460px;margin:0 auto;padding:16px 16px 28px;min-height:100vh;display:flex;flex-direction:column;gap:12px}
+h1{font-size:26px;font-weight:600;margin:4px 0 0;line-height:1.2}
+h2{font-size:21px;font-weight:600;margin:0;line-height:1.25}
+.sub{color:var(--sub);font-size:14px}
+.small{font-size:12px;color:var(--sub)}
+.top{display:flex;align-items:center;gap:8px;min-height:36px}
+.iconbtn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--card);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--mid);cursor:pointer;flex:none}
+.steps{margin-left:auto;font-size:12px;color:var(--sub)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:10px;color:var(--mid);cursor:pointer;font-size:15px;user-select:none}
+.chip i{font-size:20px;color:var(--sub)}
+.chip.on{background:var(--al);border-color:var(--a);color:var(--ad)}
+.chip.on i{color:var(--a)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid2 .chip{flex-direction:column;justify-content:center;text-align:center;padding:16px 8px;gap:6px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.row3 .chip{justify-content:center;padding:12px 6px}
+.btn{border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:600;cursor:pointer;width:100%;font-family:inherit}
+.btn.p{background:var(--a);color:#fff}
+.btn.p:active{background:var(--ad)}
+.btn.s{background:var(--card);color:var(--text);border:1px solid var(--line)}
+.btn.g{background:transparent;color:var(--a)}
+.bottom{margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:8px}
+.big{font-size:30px;font-weight:600;color:var(--a);line-height:1.1}
+.bars{display:flex;gap:4px;margin-top:10px}
+.bars span{flex:1;height:6px;border-radius:3px;background:#E6E6EA}
+.bars span.on{background:var(--a)}
+.days{display:flex;gap:4px;margin-top:4px}
+.days span{flex:1;text-align:center;font-size:10px;color:var(--sub)}
+.today{background:var(--al);border:1px solid var(--a2);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;color:var(--ad)}
+.today i{font-size:22px;color:var(--a)}
+.ex{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--card);border:1px solid var(--line);border-radius:14px}
+.ex .num{width:26px;height:26px;border-radius:50%;background:var(--al);color:var(--ad);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none}
+.ex .nm{flex:1}
+.how{border:none;background:none;color:var(--a);font-size:13px;font-weight:600;cursor:pointer;padding:4px;font-family:inherit;display:flex;align-items:center;gap:3px}
+.prog{height:5px;background:var(--line);border-radius:3px;overflow:hidden;flex:1}
+.prog div{height:100%;background:var(--a);width:0;transition:width .3s}
+.wo{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;flex:1}
+.phase{font-size:13px;font-weight:600;padding:5px 12px;border-radius:20px;background:var(--al);color:var(--ad)}
+.phase.rest{background:#E9F6EF;color:#0A6A4A}
+.phase.ready{background:var(--warn-bg);color:var(--warn)}
+.ring{position:relative;width:220px;height:220px;margin:8px 0}
+.ring svg{transform:rotate(-90deg)}
+.ring .tm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:600;font-variant-numeric:tabular-nums}
+.ctrls{display:flex;gap:18px;align-items:center;margin-top:auto;padding-top:8px}
+.cb{width:58px;height:58px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:24px;color:var(--mid);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.cb.main{width:74px;height:74px;background:var(--a);border:none;color:#fff;font-size:30px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.stat b{display:block;font-size:24px;font-weight:600;margin-top:2px}
+.meal{background:var(--al);border-radius:16px;padding:14px;color:var(--ad);display:flex;flex-direction:column;gap:3px}
+.meal .nm{font-size:17px;font-weight:600}
+.fact{border:1px dashed var(--a2);border-radius:14px;padding:12px;display:flex;gap:10px;color:var(--mid);font-size:14px}
+.fact i{font-size:20px;color:var(--a);flex:none}
+.warn{background:var(--warn-bg);border-radius:14px;padding:12px;color:var(--warn);font-size:14px;display:flex;gap:10px}
+.warn i{font-size:20px;flex:none}
+/* календарь */
+.calhead{display:flex;align-items:center;gap:8px}
+.calhead .m{flex:1;text-align:center;font-weight:600;font-size:17px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal .wd{text-align:center;font-size:11px;color:var(--sub);padding:2px 0}
+.cal .d{aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;cursor:pointer;background:var(--card);border:1.5px solid transparent;position:relative;color:var(--mid)}
+.cal .d.empty{background:none;cursor:default}
+.cal .d.done{background:var(--a);color:#fff}
+.cal .d.plan{border-color:var(--a);color:var(--ad);background:#fff}
+.cal .d.now{font-weight:700}
+.cal .d.now::after{content:"";position:absolute;bottom:5px;width:4px;height:4px;border-radius:50%;background:currentColor}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--sub);flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend em{width:12px;height:12px;border-radius:4px;display:inline-block}
+/* шторка снизу */
+.sheet{position:fixed;inset:0;background:rgba(20,20,30,.45);display:flex;align-items:flex-end;justify-content:center;z-index:10}
+.sheet.hidden{display:none}
+.panel{background:#fff;width:100%;max-width:460px;border-radius:22px 22px 0 0;padding:18px 16px 24px;max-height:85vh;overflow:auto;display:flex;flex-direction:column;gap:12px}
+.panel .grab{width:40px;height:4px;border-radius:2px;background:#DDDDE3;margin:-6px auto 2px}
+.panel ol,.panel ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.lbl{font-size:13px;font-weight:600;color:var(--sub);margin-top:4px}
+.bad li::marker{color:#D0453A}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);width:max-content;max-width:90vw;text-align:center;background:#17181C;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;z-index:20;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="sheet" class="sheet hidden" onclick="if(event.target===this)closeSheet()"><div class="panel" id="panel"></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+// ===== Настройки =====
+// Сюда потом вставим ссылку на бота, например "https://t.me/имя_бота/app"
+const APP_LINK = "";
+// Твой ник в Телеграме без @ — для кнопки «Написать автору»
+const AUTHOR_USERNAME = "whyfishan";
+const WORK_SEC = 40, REST_SEC = 20, EXTRA_MIN = 10;
+
+// ===== Телеграм =====
+const tg = (window.Telegram && Telegram.WebApp) ? Telegram.WebApp : null;
+const inTg = !!(tg && tg.initData);
+if (tg) { try { tg.ready(); tg.expand(); tg.setHeaderColor && tg.setHeaderColor('#FFFFFF'); tg.setBackgroundColor && tg.setBackgroundColor('#FFFFFF'); } catch(e){} }
+function haptic(t){ try{ inTg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred(t||'light'); }catch(e){} }
+
+// ===== Справочники =====
+const GROUPS = {
+  legs:{name:'Ноги и ягодицы', icon:'ti-walk', done:'Ноги прокачаны', share:'ноги и ягодицы'},
+  arms:{name:'Руки и плечи', icon:'ti-hand-grab', done:'Руки прокачаны', share:'руки и плечи'},
+  core:{name:'Пресс и спина', icon:'ti-body-scan', done:'Пресс и спина прокачаны', share:'пресс и спину'},
+  full:{name:'Всё тело', icon:'ti-run', done:'Всё тело прокачано', share:'всё тело'}
+};
+const PLACES = {home:{name:'Дома',icon:'ti-home'}, gym:{name:'В зале',icon:'ti-barbell'}, street:{name:'На улице',icon:'ti-trees'}};
+const EQUIP = {
+  dumbbells:{name:'Гантели',icon:'ti-barbell'},
+  mat:{name:'Коврик',icon:'ti-layout-rows'},
+  bar:{name:'Турник',icon:'ti-grip-horizontal'},
+  band:{name:'Резинка',icon:'ti-infinity'},
+  machines:{name:'Тренажёры',icon:'ti-building',gymOnly:true}
+};
+
+// g — группа, eq — что нужно (null = ничего), s — как делать, m — частые ошибки
+const EXERCISES = [
+  // Ноги
+  {id:'squat',g:'legs',eq:null,n:'Приседания',
+   s:['Встань, ноги на ширине плеч, носки чуть врозь.','Опускайся, отводя таз назад, будто садишься на стул.','Дойди до параллели бёдер с полом и поднимись.'],
+   m:['Колени заваливаются внутрь.','Пятки отрываются от пола.','Спина округляется.']},
+  {id:'lunge',g:'legs',eq:null,n:'Выпады назад',
+   s:['Встань прямо, руки на поясе.','Шагни одной ногой назад и опустись, пока оба колена не согнутся под прямым углом.','Оттолкнись и вернись. Чередуй ноги.'],
+   m:['Переднее колено уходит внутрь.','Корпус сильно наклоняется вперёд.','Слишком короткий шаг.']},
+  {id:'bridge',g:'legs',eq:null,n:'Ягодичный мостик',
+   s:['Ляг на спину, стопы на полу ближе к тазу.','Подними таз, сжимая ягодицы, до прямой линии от плеч до колен.','Задержись на секунду и плавно опустись.'],
+   m:['Прогиб в пояснице вместо работы ягодиц.','Стопы стоят слишком далеко.','Резко «падаешь» вниз.']},
+  {id:'wallsit',g:'legs',eq:null,n:'Стульчик у стены',
+   s:['Прижмись спиной к стене.','Опустись, пока бёдра не станут параллельны полу.','Держи положение до конца таймера.'],
+   m:['Колени выходят за носки.','Упираешься руками в бёдра.','Задерживаешь дыхание.']},
+  {id:'calf',g:'legs',eq:null,n:'Подъёмы на носки',
+   s:['Встань прямо, можно держаться за стену.','Поднимись на носки как можно выше.','Медленно опустись на пятки.'],
+   m:['Слишком быстрый темп.','Неполная амплитуда.','Сгибаешь колени.']},
+  {id:'goblet',g:'legs',eq:'dumbbells',n:'Приседания с гантелью у груди',
+   s:['Держи гантель вертикально у груди двумя руками.','Присядь, отводя таз назад, локти между коленей.','Поднимись, толкаясь всей стопой.'],
+   m:['Гантель уходит от груди.','Корпус заваливается вперёд.','Колени сводятся внутрь.']},
+  {id:'rdl',g:'legs',eq:'dumbbells',n:'Румынская тяга с гантелями',
+   s:['Встань прямо, гантели перед бёдрами.','Отводи таз назад, скользя гантелями по ногам. Колени чуть согнуты.','Почувствуй натяжение сзади бедра и вернись.'],
+   m:['Круглая спина.','Приседаешь вместо наклона.','Гантели далеко от ног.']},
+  {id:'bandsquat',g:'legs',eq:'band',n:'Приседания с резинкой',
+   s:['Надень резинку чуть выше колен.','Приседай, разводя колени в стороны против резинки.','Поднимись, не давая коленям сойтись.'],
+   m:['Колени тянутся внутрь за резинкой.','Неполный присед.','Пятки отрываются.']},
+  {id:'legpress',g:'legs',eq:'machines',n:'Жим ногами в тренажёре',
+   s:['Сядь, поясница плотно прижата к спинке.','Стопы на платформе на ширине плеч.','Опусти платформу до угла 90° в коленях и выжми.'],
+   m:['Полностью выпрямляешь колени в верхней точке.','Поясница отрывается от спинки.','Слишком большой вес.']},
+  // Руки и плечи
+  {id:'pushup',g:'arms',eq:null,n:'Отжимания',
+   s:['Упор лёжа, руки чуть шире плеч. Можно с колен.','Опускайся, пока грудь почти не коснётся пола.','Выжми себя вверх, тело — прямая линия.'],
+   m:['Провисает поясница.','Локти широко в стороны.','Неполная амплитуда.']},
+  {id:'dips',g:'arms',eq:null,n:'Обратные отжимания от стула',
+   s:['Сядь на край устойчивого стула, руки рядом с тазом.','Сдвинь таз вперёд и опускайся, сгибая локти до 90°.','Выпрямись на руках.'],
+   m:['Локти разъезжаются в стороны.','Плечи поднимаются к ушам.','Опускаешься слишком низко.']},
+  {id:'taps',g:'arms',eq:null,n:'Планка с касанием плеч',
+   s:['Встань в упор лёжа на прямых руках.','По очереди касайся рукой противоположного плеча.','Держи таз неподвижным.'],
+   m:['Таз раскачивается.','Ноги слишком близко — теряешь равновесие.','Провисает поясница.']},
+  {id:'curl',g:'arms',eq:'dumbbells',n:'Сгибания рук с гантелями',
+   s:['Встань прямо, гантели в опущенных руках.','Согни руки, поднимая гантели к плечам.','Медленно опусти.'],
+   m:['Раскачиваешь корпус.','Локти уходят вперёд.','Бросаешь гантели вниз.']},
+  {id:'press',g:'arms',eq:'dumbbells',n:'Жим гантелей над головой',
+   s:['Гантели у плеч, локти под ними.','Выжми гантели вверх над головой.','Плавно верни к плечам.'],
+   m:['Сильный прогиб в пояснице.','Локти уходят далеко назад.','Неполное выпрямление.']},
+  {id:'lateral',g:'arms',eq:'dumbbells',n:'Махи гантелями в стороны',
+   s:['Встань прямо, гантели по бокам, локти чуть согнуты.','Подними руки в стороны до уровня плеч.','Медленно опусти.'],
+   m:['Слишком тяжёлые гантели — работаешь рывком.','Поднимаешь выше плеч.','Плечи тянутся к ушам.']},
+  {id:'pullup',g:'arms',eq:'bar',n:'Подтягивания',
+   s:['Возьмись за турник чуть шире плеч.','Подтянись, пока подбородок не окажется над перекладиной.','Медленно опустись. Не получается — просто медленно опускайся с верхней точки.'],
+   m:['Раскачиваешься.','Не опускаешься полностью.','Тянешься подбородком вперёд.']},
+  {id:'bandrow',g:'arms',eq:'band',n:'Тяга резинки к поясу',
+   s:['Зацепи резинку за опору на уровне пояса.','Потяни к себе, сводя лопатки.','Плавно верни руки вперёд.'],
+   m:['Тянешь только руками, без лопаток.','Отклоняешься назад корпусом.','Резко отпускаешь резинку.']},
+  {id:'latpull',g:'arms',eq:'machines',n:'Тяга верхнего блока',
+   s:['Сядь, закрепи ноги, возьмись за рукоять широко.','Тяни рукоять к верху груди, сводя лопатки.','Медленно верни вверх.'],
+   m:['Тянешь за голову.','Сильно отклоняешься назад.','Рывки вместо плавного движения.']},
+  // Пресс и спина
+  {id:'plank',g:'core',eq:null,n:'Планка',
+   s:['Упор на предплечья, локти под плечами.','Тело — прямая линия от головы до пяток.','Напряги пресс и ягодицы, дыши ровно.'],
+   m:['Провисает поясница.','Таз задран вверх.','Задерживаешь дыхание.']},
+  {id:'crunch',g:'core',eq:null,n:'Скручивания',
+   s:['Ляг на спину, ноги согнуты, руки у висков.','Подними лопатки от пола, скручиваясь к тазу.','Медленно опустись.'],
+   m:['Тянешь голову руками.','Поднимаешься слишком высоко — работает не пресс.','Рывки.']},
+  {id:'bicycle',g:'core',eq:null,n:'Велосипед',
+   s:['Ляг на спину, руки у висков, ноги приподняты.','Тянись локтем к противоположному колену.','Чередуй стороны плавно.'],
+   m:['Слишком быстрый темп.','Тянешь шею руками.','Поясница отрывается от пола.']},
+  {id:'superman',g:'core',eq:null,n:'Супермен',
+   s:['Ляг на живот, руки вытянуты вперёд.','Одновременно приподними руки и ноги.','Задержись на секунду и опустись.'],
+   m:['Запрокидываешь голову.','Поднимаешь слишком высоко рывком.','Сгибаешь колени.']},
+  {id:'birddog',g:'core',eq:null,n:'Птица-собака',
+   s:['Встань на четвереньки.','Вытяни вперёд одну руку и назад противоположную ногу.','Вернись и смени стороны.'],
+   m:['Таз заваливается в сторону.','Прогибаешь поясницу.','Спешишь.']},
+  {id:'sideplank',g:'core',eq:null,n:'Боковая планка',
+   s:['Ляг на бок, упор на предплечье.','Подними таз, тело — прямая линия.','На середине таймера смени сторону.'],
+   m:['Таз провисает.','Плечо уходит к уху.','Корпус разворачивается.']},
+  {id:'dbrow',g:'core',eq:'dumbbells',n:'Тяга гантели в наклоне',
+   s:['Обопрись рукой и коленом о стул или скамью.','Тяни гантель к поясу, локоть вдоль тела.','Медленно опусти. На середине смени руку.'],
+   m:['Круглая спина.','Разворачиваешь корпус.','Тянешь рукой, а не спиной.']},
+  {id:'kneeraise',g:'core',eq:'bar',n:'Подъём коленей в висе',
+   s:['Повисни на турнике.','Подними колени к груди, скручивая таз.','Медленно опусти, не раскачиваясь.'],
+   m:['Раскачиваешься.','Поднимаешь ноги рывком.','Не опускаешь ноги полностью.']},
+  {id:'hyper',g:'core',eq:'machines',n:'Гиперэкстензия',
+   s:['Встань в тренажёр, валик под тазом.','Опусти корпус вниз с прямой спиной.','Поднимись до прямой линии тела.'],
+   m:['Переразгибаешься в верхней точке.','Круглая спина внизу.','Рывки.']},
+  // Всё тело
+  {id:'burpee',g:'full',eq:null,n:'Бёрпи',
+   s:['Присядь, руки на пол.','Прыжком уйди в упор лёжа и вернись в присед.','Выпрыгни вверх с хлопком над головой.'],
+   m:['Провисает поясница в упоре.','Жёстко приземляешься на прямые ноги.','Начинаешь слишком быстро и выдыхаешься.']},
+  {id:'jacks',g:'full',eq:null,n:'Прыжки «звёздочка»',
+   s:['Встань прямо, руки вдоль тела.','В прыжке разведи ноги и подними руки над головой.','В прыжке вернись в начало.'],
+   m:['Приземляешься на пятки.','Руки не доходят до верха.','Сутулишься.']},
+  {id:'climber',g:'full',eq:null,n:'Альпинист',
+   s:['Встань в упор лёжа.','По очереди подтягивай колени к груди.','Держи таз на уровне плеч.'],
+   m:['Таз задран вверх.','Плечи уходят за кисти.','Короткое движение ногами.']},
+  {id:'thruster',g:'full',eq:'dumbbells',n:'Присед с жимом гантелей',
+   s:['Гантели у плеч.','Присядь.','Вставая, выжми гантели над головой одним движением.'],
+   m:['Прогиб в пояснице при жиме.','Неполный присед.','Жмёшь только руками, без толчка ногами.']}
+];
+
+const MEALS = {
+  legs:[{n:'Гречка с курицей и овощами',m:'Белок ~35 г · углеводы ~50 г'},{n:'Рис с индейкой и салатом',m:'Белок ~30 г · углеводы ~55 г'},{n:'Паста с тунцом и помидорами',m:'Белок ~30 г · углеводы ~60 г'}],
+  arms:[{n:'Творог с бананом и орехами',m:'Белок ~25 г · углеводы ~30 г'},{n:'Омлет из 3 яиц с цельнозерновым хлебом',m:'Белок ~22 г · углеводы ~25 г'},{n:'Греческий йогурт с ягодами и мёдом',m:'Белок ~18 г · углеводы ~30 г'}],
+  core:[{n:'Запечённая рыба с картофелем',m:'Белок ~30 г · углеводы ~40 г'},{n:'Курица с булгуром и овощами',m:'Белок ~32 г · углеводы ~45 г'},{n:'Кефир с бананом и овсянкой',m:'Белок ~15 г · углеводы ~45 г'}],
+  full:[{n:'Курица с рисом и овощами',m:'Белок ~35 г · углеводы ~55 г'},{n:'Яичница с авокадо на тосте',m:'Белок ~20 г · углеводы ~25 г'},{n:'Смузи: молоко, банан, овсянка, арахисовая паста',m:'Белок ~20 г · углеводы ~50 г'}]
+};
+const FACTS = {
+  legs:['Ягодичная мышца — самая большая мышца в теле человека.','В ногах самые крупные мышцы тела. Их тренировка нагружает весь организм сильнее всего.','Сильные ноги берегут колени и спину в обычной жизни: лестницы, сумки, дети на руках.'],
+  arms:['Мышцы растут не на тренировке, а во время отдыха. Поэтому сон — тоже часть тренировки.','Трицепс — это около двух третей объёма руки. Хочешь руки крупнее — не забывай про него.','Сильные плечи и спина помогают держать осанку и меньше уставать за компьютером.'],
+  core:['Пресс — это не только «кубики». Мышцы кора держат спину и берегут поясницу.','30 секунд ровной планки полезнее, чем минута с провисшей поясницей.','Кубики видно, когда мало жира. Тут больше решает питание, чем число скручиваний.'],
+  full:['Короткая интенсивная тренировка на всё тело хорошо прокачивает сердце и выносливость.','Вода после тренировки так же важна, как еда. Выпей стакан-другой.','Регулярность важнее силы: три тренировки в неделю дают больше, чем одна изнуряющая.']
+};
+
+// ===== Хранилище (без аккаунтов) =====
+const KEY = 'fitapp_v1';
+let DB = {history:[], plan:{}};
+function useCloud(){ try{ return inTg && tg.CloudStorage && tg.isVersionAtLeast && tg.isVersionAtLeast('6.9'); }catch(e){ return false; } }
+function mergeDB(a,b){
+  const seen = new Set(), hist = [];
+  [...(a.history||[]), ...(b.history||[])].forEach(h=>{ const k=h.d+h.g+h.m+h.t; if(!seen.has(k)){ seen.add(k); hist.push(h); } });
+  hist.sort((x,y)=> (x.d+x.t) < (y.d+y.t) ? -1 : 1);
+  return {history:hist, plan:Object.assign({}, a.plan||{}, b.plan||{})};
+}
+function loadDB(cb){
+  try{ const l = JSON.parse(localStorage.getItem(KEY)); if(l) DB = mergeDB(DB,l); }catch(e){}
+  if(useCloud()){
+    try{
+      tg.CloudStorage.getItem(KEY,(err,val)=>{
+        if(!err && val){ try{ DB = mergeDB(DB, JSON.parse(val)); }catch(e){} }
+        cb();
+      });
+      return;
+    }catch(e){}
+  }
+  cb();
+}
+function saveDB(){
+  const today = ymd(new Date()), monthAgo = ymd(addDays(new Date(),-31));
+  Object.keys(DB.plan).forEach(d=>{ if(d < monthAgo) delete DB.plan[d]; });
+  try{ localStorage.setItem(KEY, JSON.stringify(DB)); }catch(e){}
+  if(useCloud()){
+    // облако Телеграма вмещает ~4000 символов — храним последние записи
+    const copy = {history:DB.history.slice(), plan:DB.plan};
+    let s = JSON.stringify(copy);
+    while(s.length > 3900 && copy.history.length){ copy.history.shift(); s = JSON.stringify(copy); }
+    try{ tg.CloudStorage.setItem(KEY, s); }catch(e){}
+  }
+}
+
+// ===== Даты =====
+const pad = n => String(n).padStart(2,'0');
+const ymd = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const addDays = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+const parseYmd = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y,m-1,d); };
+const MONTHS = ['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+const MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const WD = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+const WD_FULL = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+function nice(s){ const d = parseYmd(s); return WD_FULL[d.getDay()]+', '+d.getDate()+' '+MONTHS_GEN[d.getMonth()]; }
+function plural(n,a,b,c){ const m10=n%10, m100=n%100; if(m10===1&&m100!==11) return a; if(m10>=2&&m10<=4&&(m100<10||m100>=20)) return b; return c; }
+function fmtMin(m){ if(m<60) return m+' мин'; const h = m/60; return (h===1 ? '1 час' : String(h).replace('.',',')+' '+(h<5 && h%1===0 ? 'часа' : 'часа')); }
+const doneOn = d => DB.history.filter(h=>h.d===d);
+function streak(){
+  let d = new Date(); if(!doneOn(ymd(d)).length) d = addDays(d,-1);
+  let n = 0; while(doneOn(ymd(d)).length){ n++; d = addDays(d,-1); }
+  return n;
+}
+
+// ===== Состояние =====
+const S = {screen:'home', group:null, place:'home', minutes:30, equip:new Set(), plan:[], extra:false, last:null, calMonth:null};
+const userName = (()=>{ try{ const u = tg && tg.initDataUnsafe && tg.initDataUnsafe.user; return u && u.first_name ? u.first_name : ''; }catch(e){ return ''; } })();
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+function shuffle(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function go(screen){ S.screen = screen; render(); window.scrollTo(0,0); }
+function back(){
+  const order = {focus:'home', place:'focus', equip:'place', preview:'equip', calendar:'home'};
+  go(S.extra && S.screen==='preview' ? 'done' : (order[S.screen] || 'home'));
+}
+function topbar(step){
+  return `<div class="top"><div class="iconbtn" onclick="back()" aria-label="Назад"><i class="ti ti-chevron-left"></i></div>${step?`<span class="steps">${step}</span>`:''}</div>`;
+}
+
+// ===== Экраны =====
+function render(){
+  const app = document.getElementById('app');
+  app.innerHTML = ({home:viewHome, focus:viewFocus, place:viewPlace, equip:viewEquip, preview:viewPreview, workout:viewWorkout, done:viewDone, calendar:viewCalendar})[S.screen]();
+  if(S.screen==='workout') updateWorkout();
+  try{
+    if(inTg && tg.BackButton){ (S.screen==='home'||S.screen==='workout') ? tg.BackButton.hide() : tg.BackButton.show(); }
+  }catch(e){}
+}
+
+function viewHome(){
+  const st = streak(), total = DB.history.length;
+  const now = new Date(), monday = addDays(now, -((now.getDay()+6)%7));
+  let bars = '', labels = '';
+  for(let i=0;i<7;i++){ const d = ymd(addDays(monday,i)); bars += `<span class="${doneOn(d).length?'on':''}"></span>`; labels += `<span>${WD[i]}</span>`; }
+  const planned = DB.plan[ymd(now)];
+  const todayDone = doneOn(ymd(now)).length;
+  return `
+  <div style="padding-top:8px">
+    <h1>${userName ? 'Привет, '+esc(userName) : 'Привет!'}</h1>
+    <div class="sub" style="margin-top:4px">${todayDone ? 'Сегодня ты уже молодец. Можно отдыхать или добавить ещё.' : 'Готов к тренировке?'}</div>
+  </div>
+  <div class="card">
+    <div class="small">Серия</div>
+    <div class="big">${st ? st+' '+plural(st,'день','дня','дней')+' подряд' : 'Начни серию сегодня'}</div>
+    <div class="bars">${bars}</div><div class="days">${labels}</div>
+    <div class="small" style="margin-top:8px">Всего тренировок: ${total}</div>
+  </div>
+  <div class="card" style="display:flex;flex-direction:column;gap:8px">
+    <div style="display:flex;align-items:center;gap:8px;font-weight:600"><i class="ti ti-info-circle" style="font-size:20px;color:var(--a)"></i>О приложении</div>
+    <div style="font-size:14px;color:var(--mid)">Бесплатный помощник для тренировок дома, в зале и на улице. Подбирает упражнения под твой инвентарь, ведёт по таймеру и подсказывает, как делать правильно.</div>
+    <div style="font-size:14px;color:var(--mid)">Знаешь, как сделать его лучше? Напиши мне — я читаю каждое сообщение.</div>
+    <button class="btn g" style="padding:8px 0;text-align:left;width:auto" onclick="writeAuthor()"><i class="ti ti-message-circle" style="vertical-align:-2px"></i> Написать автору</button>
+  </div>
+  ${planned && !todayDone ? `<div class="today"><i class="ti ti-calendar-event"></i><div><div style="font-size:12px">Сегодня по плану</div><b>${GROUPS[planned].name}</b></div></div>`:''}
+  <div class="bottom">
+    <button class="btn p" onclick="startFlow()">Начать тренировку</button>
+    <button class="btn s" onclick="openCalendar()"><i class="ti ti-calendar" style="vertical-align:-2px"></i> Календарь и план</button>
+  </div>`;
+}
+function writeAuthor(){
+  if(!AUTHOR_USERNAME){ toast('Ссылка на автора появится позже'); return; }
+  const url = 'https://t.me/' + AUTHOR_USERNAME;
+  if(inTg){ try{ tg.openTelegramLink(url); return; }catch(e){} }
+  window.open(url, '_blank');
+}
+function startFlow(){
+  S.extra = false;
+  S.group = DB.plan[ymd(new Date())] || S.group || 'full';
+  go('focus');
+}
+
+function viewFocus(){
+  return `${topbar('Шаг 1 из 3')}
+  <h2>Что тренируем сегодня?</h2>
+  ${Object.entries(GROUPS).map(([k,g])=>`<div class="chip ${S.group===k?'on':''}" onclick="S.group='${k}';render()"><i class="ti ${g.icon}"></i>${g.name}</div>`).join('')}
+  <div class="bottom"><button class="btn p" onclick="go('place')">Дальше</button></div>`;
+}
+
+function viewPlace(){
+  return `${topbar('Шаг 2 из 3')}
+  <h2>Где сегодня?</h2>
+  ${Object.entries(PLACES).map(([k,p])=>`<div class="chip ${S.place===k?'on':''}" onclick="setPlace('${k}')"><i class="ti ${p.icon}"></i>${p.name}</div>`).join('')}
+  <div class="lbl">Сколько есть времени</div>
+  <div class="row3">${[15,30,45,60,90,120].map(m=>`<div class="chip ${S.minutes===m?'on':''}" onclick="S.minutes=${m};render()">${fmtMin(m)}</div>`).join('')}</div>
+  <div class="bottom"><button class="btn p" onclick="go('equip')">Дальше</button></div>`;
+}
+function setPlace(k){ S.place = k; if(k!=='gym') S.equip.delete('machines'); render(); }
+
+function viewEquip(){
+  const items = Object.entries(EQUIP).filter(([k,e])=>!e.gymOnly || S.place==='gym');
+  return `${topbar('Шаг 3 из 3')}
+  <h2>Что есть под рукой?</h2>
+  <div class="sub">Выбери всё, что есть. Упражнения с весом своего тела будут в любом случае.</div>
+  <div class="grid2">${items.map(([k,e])=>`<div class="chip ${S.equip.has(k)?'on':''}" onclick="toggleEq('${k}')"><i class="ti ${e.icon}"></i>${e.name}</div>`).join('')}</div>
+  <div class="chip ${S.equip.size===0?'on':''}" style="justify-content:center" onclick="S.equip.clear();render()">Только своё тело</div>
+  <div class="bottom"><button class="btn p" onclick="buildPlan();go('preview')">Собрать тренировку</button></div>`;
+}
+function toggleEq(k){ S.equip.has(k) ? S.equip.delete(k) : S.equip.add(k); render(); }
+
+function buildPlan(){
+  const ok = e => (e.eq===null || S.equip.has(e.eq)) && (S.group==='full' ? true : e.g===S.group);
+  let pool = EXERCISES.filter(ok);
+  // сначала упражнения с инвентарём, который выбрал человек
+  const withEq = shuffle(pool.filter(e=>e.eq)), noEq = shuffle(pool.filter(e=>!e.eq));
+  if(S.group==='full'){ const fullOnes = shuffle(noEq.filter(e=>e.g==='full')); pool = [...fullOnes.slice(0,2), ...withEq, ...noEq.filter(e=>!fullOnes.slice(0,2).includes(e))]; }
+  else pool = [...withEq.slice(0,3), ...noEq, ...withEq.slice(3)];
+  const minutes = S.extra ? EXTRA_MIN : S.minutes;
+  const count = Math.min(S.extra ? 5 : (minutes>=90 ? 12 : minutes>=60 ? 10 : minutes>=30 ? 8 : 6), pool.length);
+  S.plan = shuffle(pool.slice(0,count));
+  S.sets = []; for(let i=0;i<minutes;i++) S.sets.push(S.plan[i % S.plan.length]);
+}
+
+function viewPreview(){
+  const minutes = S.sets.length, rounds = Math.ceil(S.sets.length / S.plan.length);
+  return `${topbar(S.extra ? 'Дополнительно' : '')}
+  <h2>${S.extra ? 'Короткий блок: ' : 'Твоя тренировка: '}${GROUPS[S.group].name.toLowerCase()}</h2>
+  <div class="sub">${S.plan.length} ${plural(S.plan.length,'упражнение','упражнения','упражнений')} · ${fmtMin(minutes)} · ${rounds} ${plural(rounds,'круг','круга','кругов')}<br>${WORK_SEC} сек работаешь, ${REST_SEC} сек отдыхаешь</div>
+  ${S.plan.map((e,i)=>`<div class="ex"><span class="num">${i+1}</span><span class="nm">${e.n}</span><button class="how" onclick="showHow('${e.id}')">Как делать <i class="ti ti-chevron-right"></i></button></div>`).join('')}
+  <div class="bottom">
+    <button class="btn p" onclick="startWorkout()"><i class="ti ti-player-play" style="vertical-align:-2px"></i> Старт</button>
+    <button class="btn g" onclick="buildPlan();render()"><i class="ti ti-refresh" style="vertical-align:-2px"></i> Собрать заново</button>
+  </div>`;
+}
+
+function showHow(id, fromWorkout){
+  const e = EXERCISES.find(x=>x.id===id);
+  if(fromWorkout && W && !W.paused) togglePause();
+  openSheet(`<div class="grab"></div>
+    <h2>${e.n}</h2>
+    ${e.eq ? `<div class="small">Нужно: ${EQUIP[e.eq].name.toLowerCase()}</div>`:''}
+    <div class="lbl">Как делать</div>
+    <ol>${e.s.map(x=>`<li>${x}</li>`).join('')}</ol>
+    <div class="lbl">Частые ошибки</div>
+    <ul class="bad">${e.m.map(x=>`<li>${x}</li>`).join('')}</ul>
+    <div class="small">Если чувствуешь боль (не путай с усталостью мышц) — остановись.</div>
+    <button class="btn s" onclick="closeSheet()">Понятно</button>`);
+}
+
+// ===== Тренировка с таймером =====
+let W = null, timerId = null, audio = null, wakeLock = null;
+function beep(freq, dur){
+  try{
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audio.createOscillator(), g = audio.createGain();
+    o.frequency.value = freq; o.connect(g); g.connect(audio.destination);
+    g.gain.setValueAtTime(0.25, audio.currentTime); g.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + dur);
+    o.start(); o.stop(audio.currentTime + dur);
+  }catch(e){}
+}
+function startWorkout(){
+  beep(1,0.01); // разблокировать звук после нажатия
+  try{ navigator.wakeLock && navigator.wakeLock.request('screen').then(l=>wakeLock=l).catch(()=>{}); }catch(e){}
+  // без отсчёта: таймер первого упражнения идёт сразу после «Старт»
+  W = {idx:0, phase:'work', dur:WORK_SEC*1000, left:WORK_SEC*1000, last:Date.now(), paused:false, activeMs:0, doneIds:new Set([S.sets[0].id]), lastSec:null};
+  go('workout');
+  beep(880,0.35); haptic('medium');
+  clearInterval(timerId); timerId = setInterval(tick, 200);
+}
+function phaseNext(){
+  if(W.phase==='ready'){ W.phase='work'; W.dur=W.left=WORK_SEC*1000; W.doneIds.add(S.sets[W.idx].id); beep(880,0.35); haptic('medium'); }
+  else if(W.phase==='work'){
+    if(W.idx >= S.sets.length-1){ finishWorkout(true); return; }
+    W.phase='rest'; W.dur=W.left=REST_SEC*1000; beep(520,0.35); haptic('light');
+  } else { W.idx++; W.phase='work'; W.dur=W.left=WORK_SEC*1000; W.doneIds.add(S.sets[W.idx].id); beep(880,0.35); haptic('medium'); }
+  W.lastSec = null;
+  updateWorkout();
+}
+function tick(){
+  if(!W || S.screen!=='workout') return;
+  const now = Date.now(), dt = now - W.last; W.last = now;
+  if(W.paused) return;
+  W.left -= dt; if(W.phase!=='ready') W.activeMs += dt;
+  const sec = Math.ceil(W.left/1000);
+  if(sec<=3 && sec>0 && sec!==W.lastSec){ W.lastSec = sec; beep(660,0.12); }
+  if(W.left <= 0) phaseNext(); else updateWorkout();
+}
+function togglePause(){ W.paused = !W.paused; W.last = Date.now(); updateWorkout(); }
+function skip(){ W.left = 0; W.last = Date.now(); phaseNext(); }
+function askFinish(){
+  if(!W.paused) togglePause();
+  openSheet(`<div class="grab"></div><h2>Закончить тренировку?</h2>
+    <div class="sub">${W.doneIds.size ? 'То, что уже сделал, сохранится.' : 'Ты ещё не начал упражнения — ничего не сохранится.'}</div>
+    <button class="btn p" onclick="closeSheet();finishWorkout(false)">Закончить</button>
+    <button class="btn s" onclick="closeSheet();togglePause()">Продолжить</button>`);
+}
+function finishWorkout(full){
+  clearInterval(timerId);
+  try{ wakeLock && wakeLock.release(); }catch(e){}
+  if(!W.doneIds.size){ W = null; go('home'); return; }
+  const now = new Date();
+  const rec = {d:ymd(now), t:pad(now.getHours())+':'+pad(now.getMinutes()), g:S.group, m:Math.max(1, Math.round(W.activeMs/60000)), e:W.doneIds.size, x:S.extra?1:0};
+  DB.history.push(rec);
+  if(DB.plan[rec.d] === rec.g) delete DB.plan[rec.d];
+  saveDB();
+  S.last = Object.assign({}, rec, {meal:pick(MEALS[rec.g]), fact:pick(FACTS[rec.g])});
+  beep(990,0.25); setTimeout(()=>beep(1320,0.4),250); haptic('heavy');
+  W = null; go('done');
+}
+function viewWorkout(){
+  return `<div class="top">
+    <div class="iconbtn" onclick="askFinish()" aria-label="Закончить"><i class="ti ti-x"></i></div>
+    <div class="prog"><div id="wProg"></div></div>
+    <span class="small" id="wCount"></span>
+  </div>
+  <div class="wo">
+    <span class="phase" id="wPhase"></span>
+    <h2 id="wName" style="font-size:24px"></h2>
+    <button class="how" id="wHow"><i class="ti ti-info-circle"></i> Как делать</button>
+    <div class="ring">
+      <svg width="220" height="220" viewBox="0 0 220 220"><circle cx="110" cy="110" r="96" fill="none" stroke="#ECECF0" stroke-width="12"/><circle id="wArc" cx="110" cy="110" r="96" fill="none" stroke="#6A4CE0" stroke-width="12" stroke-linecap="round" stroke-dasharray="603.2" stroke-dashoffset="0"/></svg>
+      <div class="tm" id="wTime"></div>
+    </div>
+    <div class="sub" id="wNext"></div>
+    <div class="ctrls">
+      <div class="cb" onclick="askFinish()" aria-label="Закончить"><i class="ti ti-player-stop"></i></div>
+      <div class="cb main" id="wPlay" onclick="togglePause()" aria-label="Пауза"><i class="ti ti-player-pause"></i></div>
+      <div class="cb" onclick="skip()" aria-label="Пропустить"><i class="ti ti-player-skip-forward"></i></div>
+    </div>
+  </div>`;
+}
+function updateWorkout(){
+  if(!W) return;
+  const $ = id => document.getElementById(id); if(!$('wTime')) return;
+  const ex = S.sets[W.idx], nextEx = S.sets[W.idx+1];
+  const sec = Math.max(0, Math.ceil(W.left/1000));
+  $('wTime').textContent = Math.floor(sec/60)+':'+pad(sec%60);
+  $('wArc').setAttribute('stroke-dashoffset', (603.2*(1 - W.left/W.dur)).toFixed(1));
+  $('wArc').setAttribute('stroke', W.phase==='rest' ? '#1D9E75' : W.phase==='ready' ? '#E0A030' : '#6A4CE0');
+  const ph = $('wPhase');
+  ph.className = 'phase ' + (W.phase==='work' ? '' : W.phase);
+  ph.textContent = W.paused ? 'Пауза' : ({ready:'Приготовься', work:'Работаем', rest:'Отдых'})[W.phase];
+  const shown = W.phase==='rest' ? nextEx : ex;
+  $('wName').textContent = W.phase==='rest' ? 'Дальше: '+nextEx.n : ex.n;
+  $('wHow').onclick = () => showHow(shown.id, true);
+  $('wNext').textContent = W.phase==='work' && nextEx ? 'Потом отдых, затем: '+nextEx.n : W.phase==='work' ? 'Последнее упражнение!' : '';
+  $('wCount').textContent = (W.idx+1)+' / '+S.sets.length;
+  $('wProg').style.width = ((W.idx + (W.phase==='rest'?1:0)) / S.sets.length * 100) + '%';
+  $('wPlay').innerHTML = W.paused ? '<i class="ti ti-player-play"></i>' : '<i class="ti ti-player-pause"></i>';
+}
+
+// ===== Итог =====
+function viewDone(){
+  const L = S.last, g = GROUPS[L.g];
+  const st = streak();
+  return `<div style="padding-top:8px">
+    <h1>${g.done}</h1>
+    <div class="sub" style="margin-top:4px">Отличная работа${userName?', '+esc(userName):''}!</div>
+  </div>
+  <div class="grid2">
+    <div class="stat"><span class="small">Время</span><b>${L.m} <span class="small">мин</span></b></div>
+    <div class="stat"><span class="small">Упражнений</span><b>${L.e}</b></div>
+    <div class="stat"><span class="small">Серия</span><b>${st} <span class="small">${plural(st,'день','дня','дней')}</span></b></div>
+    <div class="stat"><span class="small">Всего тренировок</span><b>${DB.history.length}</b></div>
+  </div>
+  <div class="meal">
+    <span style="font-size:12px">Что съесть в течение 1–2 часов</span>
+    <span class="nm">${L.meal.n}</span>
+    <span style="font-size:12px;color:var(--a)">${L.meal.m}</span>
+  </div>
+  <div class="fact"><i class="ti ti-bulb"></i><span>${L.fact}</span></div>
+  <div class="bottom">
+    <button class="btn p" onclick="share()"><i class="ti ti-send" style="vertical-align:-2px"></i> Поделиться</button>
+    <button class="btn s" onclick="askExtra()"><i class="ti ti-plus" style="vertical-align:-2px"></i> Добавить ещё</button>
+    <button class="btn g" onclick="go('home')">Готово</button>
+  </div>`;
+}
+function askExtra(){
+  const L = S.last;
+  const today = doneOn(L.d).reduce((s,h)=>s+h.m,0);
+  const others = Object.entries(GROUPS).filter(([k])=>k!==L.g);
+  openSheet(`<div class="grab"></div>
+    <h2>Добавить ещё?</h2>
+    <div class="warn"><i class="ti ti-alert-triangle"></i><span>Сегодня ты уже позанимался ${today} мин. Не перетрудись: добавим короткий блок на ${EXTRA_MIN} минут. Если кружится голова, что-то болит или сильно устал — лучше отдохнуть, мышцы растут во время отдыха.</span></div>
+    <div class="lbl">Что докачаем?</div>
+    ${others.map(([k,g])=>`<div class="chip" onclick="startExtra('${k}')"><i class="ti ${g.icon}"></i>${g.name}</div>`).join('')}
+    <button class="btn g" onclick="closeSheet()">Нет, на сегодня хватит</button>`);
+}
+function startExtra(k){ closeSheet(); S.extra = true; S.group = k; buildPlan(); go('preview'); }
+
+function share(){
+  const L = S.last;
+  const link = APP_LINK || location.href.split('#')[0];
+  const text = `Потренировал ${GROUPS[L.g].share}: ${L.m} мин, ${L.e} ${plural(L.e,'упражнение','упражнения','упражнений')} 💪 Серия: ${streak()} ${plural(streak(),'день','дня','дней')}. Попробуй и ты — бесплатно:`;
+  if(inTg){ try{ tg.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+encodeURIComponent(text)); return; }catch(e){} }
+  if(navigator.share){ navigator.share({text, url:link}).catch(()=>{}); return; }
+  try{ navigator.clipboard.writeText(text+' '+link).then(()=>toast('Текст скопирован — вставь его в чат')); }catch(e){ toast('Не получилось поделиться'); }
+}
+
+// ===== Календарь =====
+function openCalendar(){ const n = new Date(); S.calMonth = new Date(n.getFullYear(), n.getMonth(), 1); go('calendar'); }
+function moveMonth(n){ S.calMonth = new Date(S.calMonth.getFullYear(), S.calMonth.getMonth()+n, 1); render(); }
+function viewCalendar(){
+  const m = S.calMonth, first = (m.getDay()+6)%7, daysIn = new Date(m.getFullYear(), m.getMonth()+1, 0).getDate();
+  const today = ymd(new Date());
+  let cells = WD.map(w=>`<div class="wd">${w}</div>`).join('');
+  for(let i=0;i<first;i++) cells += '<div class="d empty"></div>';
+  for(let d=1; d<=daysIn; d++){
+    const key = m.getFullYear()+'-'+pad(m.getMonth()+1)+'-'+pad(d);
+    const cls = doneOn(key).length ? 'done' : DB.plan[key] ? 'plan' : '';
+    cells += `<div class="d ${cls} ${key===today?'now':''}" onclick="dayInfo('${key}')">${d}</div>`;
+  }
+  const upcoming = Object.keys(DB.plan).filter(d=>d>=today).sort().slice(0,5);
+  const monthDone = DB.history.filter(h=>h.d.startsWith(m.getFullYear()+'-'+pad(m.getMonth()+1))).length;
+  return `${topbar('')}
+  <h2>Календарь</h2>
+  <div class="sub">Нажми на день, чтобы запланировать тренировку.</div>
+  <div class="calhead">
+    <div class="iconbtn" onclick="moveMonth(-1)" aria-label="Предыдущий месяц"><i class="ti ti-chevron-left"></i></div>
+    <div class="m">${MONTHS[m.getMonth()][0].toUpperCase()+MONTHS[m.getMonth()].slice(1)} ${m.getFullYear()}</div>
+    <div class="iconbtn" onclick="moveMonth(1)" aria-label="Следующий месяц"><i class="ti ti-chevron-right"></i></div>
+  </div>
+  <div class="cal">${cells}</div>
+  <div class="legend">
+    <span><em style="background:var(--a)"></em>Тренировался</span>
+    <span><em style="border:1.5px solid var(--a)"></em>Запланировано</span>
+  </div>
+  <div class="small">В этом месяце тренировок: ${monthDone}</div>
+  <div class="lbl">Ближайшие планы</div>
+  ${upcoming.length ? upcoming.map(d=>`<div class="ex" onclick="dayInfo('${d}')" style="cursor:pointer"><i class="ti ${GROUPS[DB.plan[d]].icon}" style="color:var(--a);font-size:20px"></i><span class="nm">${nice(d)}</span><span class="small">${GROUPS[DB.plan[d]].name}</span></div>`).join('') : '<div class="sub">Пока ничего не запланировано.</div>'}`;
+}
+function dayInfo(key){
+  const today = ymd(new Date()), done = doneOn(key), future = key >= today;
+  let html = `<div class="grab"></div><h2>${nice(key)}</h2>`;
+  if(done.length){
+    html += `<div class="lbl">Сделано</div>` + done.map(h=>`<div class="ex"><i class="ti ti-check" style="color:var(--a);font-size:20px"></i><span class="nm">${GROUPS[h.g].name}${h.x?' (доп.)':''}</span><span class="small">${h.m} мин · ${h.e} упр.</span></div>`).join('');
+  }
+  if(future){
+    html += `<div class="lbl">Что планируешь?</div>` + Object.entries(GROUPS).map(([k,g])=>`<div class="chip ${DB.plan[key]===k?'on':''}" onclick="setPlan('${key}','${k}')"><i class="ti ${g.icon}"></i>${g.name}</div>`).join('');
+    if(DB.plan[key]) html += `<button class="btn g" onclick="setPlan('${key}',null)">Убрать из плана</button>`;
+  } else if(!done.length){
+    html += `<div class="sub">В этот день тренировки не было.</div>`;
+  }
+  html += `<button class="btn s" onclick="closeSheet()">Закрыть</button>`;
+  openSheet(html);
+}
+function setPlan(key, g){
+  if(g) DB.plan[key] = g; else delete DB.plan[key];
+  saveDB(); haptic('light'); closeSheet(); render();
+  toast(g ? 'Запланировано: '+GROUPS[g].name.toLowerCase() : 'Убрано из плана');
+}
+
+// ===== Шторка и подсказки =====
+function openSheet(html){ document.getElementById('panel').innerHTML = html; document.getElementById('sheet').classList.remove('hidden'); }
+function closeSheet(){ document.getElementById('sheet').classList.add('hidden'); }
+let toastT; function toast(t){ const el = document.getElementById('toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(()=>el.classList.remove('show'), 2200); }
+
+// ===== Запуск =====
+try{ inTg && tg.BackButton && tg.BackButton.onClick(()=>{ if(!document.getElementById('sheet').classList.contains('hidden')) closeSheet(); else back(); }); }catch(e){}
+loadDB(render);
+</script>
+</body>
+</html>
